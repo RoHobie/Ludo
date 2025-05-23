@@ -46,3 +46,31 @@ app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
 }
 );
+
+//dice rolling endpoint
+
+app.post('/room/:roomId/roll', (req, res) => {
+  const { roomId } = req.params;
+  const game = roomManager.getRoom(roomId);
+  if (!game) return res.status(404).json({ error: 'Room not found' });
+
+  const roll = game.rollDice();
+  res.json({ roll });
+});
+
+//piece moving endpoint
+
+app.post('/room/:roomId/move', (req, res) => {
+  const { roomId } = req.params;
+  const { playerName, pieceId, steps } = req.body;
+
+  const game = roomManager.getRoom(roomId);
+  if (!game) return res.status(404).json({ error: 'Room not found' });
+
+  try {
+    game.movePiece(playerName, pieceId, steps);
+    res.json({ state: game.getState() });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
