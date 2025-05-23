@@ -1,0 +1,48 @@
+const express = require('express');
+const {RoomManager} = require('./game/roomManager');
+
+const app = express();
+const port = 3000;
+const roomManager = new RoomManager();
+
+app.use(express.json());
+
+app.post('/room', (req, res) => {   //room creation endpoint
+    try{
+        const roomId = roomManager.createRoom();
+        res.json({roomId});
+    } catch(err){
+        console.error(err);
+        res.status(500).json({error: 'Failed to create room'});
+    }
+});
+
+app.post('/room/:roomId/join', (req, res) => {  //room joining endpoint
+    const {roomId} = req.params;
+    const {playerName} = req.body;
+
+    if(!playerName) return res.status(400).json({error: 'Player name is required'});
+    try{
+        const playerId = roomManager.joinRoom(roomId, playerName);
+        res.json({playerId});
+    } catch(err){
+        console.error(err);
+        res.status(400).json({error: 'Failed to join room'});
+    }
+});
+
+//get room state
+
+app.get('/room/:roomId/state', (req, res) => {
+    const {roomId} = req.params;
+    const game = roomManager.getRoom(roomId);
+
+    if(!game) return res.status(404).json({error: 'Room not found'});
+
+    res.json(game.getState());
+});
+
+app.listen(port, () => {
+    console.log(`Server running at http://localhost:${port}`);
+}
+);
