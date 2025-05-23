@@ -1,22 +1,11 @@
-const { LudoGame } = require('./game/coreLogic');
+const RoomManager = require('./game/roomManager');
 
-const game = new LudoGame();
+const manager = new RoomManager();
+const roomId = manager.createRoom();
+console.log(`Room created: ${roomId}`);
 
-// Add 2 players
-game.addPlayer('Alice');
-game.addPlayer('Bob');
+manager.joinRoom(roomId, 'Alice');
+manager.joinRoom(roomId, 'Bob');
 
-console.log('\nInitial game state:');
+const game = manager.getRoom(roomId);
 console.log(game.getState());
-
-const diceRoll = game.rollDice();
-const currentPlayer = game.getCurrentPlayer();
-console.log(`\n${currentPlayer.name} rolled a ${diceRoll}`);
-
-game.movePiece(currentPlayer.name, 0, diceRoll);
-
-console.log('\nState after move:');
-console.log(game.getState());
-
-game.nextTurn();
-console.log(`\nNext turn: ${game.getCurrentPlayer().name}`);
