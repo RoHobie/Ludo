@@ -1,15 +1,16 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Home from "./components/Home";
+import Room from "./components/Room"; // we’ll create this next
 
-// src/App.jsx
 function App() {
   return (
-    <div className="h-screen bg-gray-900 flex items-center justify-center text-white text-3xl">
-      Tailwind is working 🎉
-    </div>
-  )
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/room/:roomId" element={<Room />} />
+      </Routes>
+    </Router>
+  );
 }
 
-export default App
+export default App;
