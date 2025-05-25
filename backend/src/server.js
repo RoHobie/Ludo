@@ -1,11 +1,12 @@
 const express = require('express');
 const {RoomManager} = require('./game/roomManager');
-
+const cors = require('cors');
 const app = express();
 const port = 3000;
 const roomManager = new RoomManager();
 
 app.use(express.json());
+app.use(cors());
 
 app.post('/room', (req, res) => {   //room creation endpoint
     try{
