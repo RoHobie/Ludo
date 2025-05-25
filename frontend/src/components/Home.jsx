@@ -1,0 +1,67 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+export default function Home() {
+  const [name, setName] = useState("");
+  const [roomCode, setRoomCode] = useState("");
+  const navigate = useNavigate();
+
+  const handleCreateRoom = async () => {
+    try {
+      const res = await fetch("http://localhost:3000/room", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const data = await res.json();
+      const roomId = data.roomId;
+
+      navigate(`/room/${roomId}`, { state: { name } });
+    } catch (err) {
+      alert("Failed to create room");
+    }
+  };
+
+  const handleJoinRoom = async () => {
+    try {
+      const res = await fetch(`http://localhost:3000/room/${roomCode}/join`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ playerName: name }),
+      });
+
+      const data = await res.json();
+      navigate(`/room/${roomCode}`, { state: { name } });
+    } catch (err) {
+      alert("Failed to join room");
+    }
+  };
+
+  return (
+    <div className="flex flex-col items-center justify-center h-screen space-y-4">
+      <h1 className="text-3xl font-bold">Ludo Lobby</h1>
+      <input
+        className="border p-2 rounded"
+        type="text"
+        placeholder="Your Name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
+      <input
+        className="border p-2 rounded"
+        type="text"
+        placeholder="Room Code"
+        value={roomCode}
+        onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
+      />
+      <div className="space-x-2">
+        <button className="bg-blue-500 text-white px-4 py-2 rounded" onClick={handleCreateRoom}>
+          Create Room
+        </button>
+        <button className="bg-green-500 text-white px-4 py-2 rounded" onClick={handleJoinRoom}>
+          Join Room
+        </button>
+      </div>
+    </div>
+  );
+}
