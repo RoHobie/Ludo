@@ -23,12 +23,22 @@ export default function Home() {
   };
 
   const handleJoinRoom = async () => {
+    if (!name || !roomCode) {
+      alert("Name and Room Code are required");
+      return;
+    }
     try {
       const res = await fetch(`http://localhost:3000/room/${roomCode}/join`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ playerName: name }),
       });
+
+      if (!res.ok) {
+        const { error } = await res.json();
+        alert(`Error: ${error}`);
+        return;
+      }
 
       const data = await res.json();
       navigate(`/room/${roomCode}`, { state: { name } });
@@ -55,10 +65,16 @@ export default function Home() {
         onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
       />
       <div className="space-x-2">
-        <button className="bg-blue-500 text-white px-4 py-2 rounded" onClick={handleCreateRoom}>
+        <button
+          className="bg-blue-500 text-white px-4 py-2 rounded"
+          onClick={handleCreateRoom}
+        >
           Create Room
         </button>
-        <button className="bg-green-500 text-white px-4 py-2 rounded" onClick={handleJoinRoom}>
+        <button
+          className="bg-green-500 text-white px-4 py-2 rounded"
+          onClick={handleJoinRoom}
+        >
           Join Room
         </button>
       </div>
