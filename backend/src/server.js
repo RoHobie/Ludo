@@ -10,7 +10,12 @@ app.use(cors());
 
 app.post('/room', (req, res) => {   //room creation endpoint
     try{
+        const { playerName } = req.body;
+        if (!playerName) {
+            return res.status(400).json({ error: 'Player name is required' });
+        }
         const roomId = roomManager.createRoom();
+        roomManager.joinRoom(roomId, playerName);
         res.json({roomId});
     } catch(err){
         console.error(err);
@@ -41,6 +46,20 @@ app.get('/room/:roomId/state', (req, res) => {
     if(!game) return res.status(404).json({error: 'Room not found'});
 
     res.json(game.getState());
+});
+
+app.post('/room/:roomId/start', (req, res) => {
+    const {roomId} = req.params;
+    const game = roomManager.getRoom(roomId);
+
+    if(!game) return res.status(404).json({error: 'Room not found'});
+
+    try {
+        game.startGame();
+        res.json(game.getState());
+    } catch(err) {
+        res.status(400).json({error: err.message});
+    }
 });
 
 app.listen(port, () => {
