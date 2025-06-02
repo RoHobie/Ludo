@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./components/Home";
-import Room from "./components/Room"; // we’ll create this next
+import Room from "./components/Room";
 
 function App() {
   return (
