@@ -94,7 +94,7 @@ class LudoGame {
         pieces: p.pieces.map((pc) => pc.position),
         hasFinished: p.hasFinished,
       })),
-      currentTurn: this.getCurrentPlayer().name,
+      currentTurn: this.started ? this.getCurrentPlayer().name : null,
       started: this.started,
     };
   }
