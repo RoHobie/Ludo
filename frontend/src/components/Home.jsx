@@ -3,14 +3,19 @@ import { useNavigate } from "react-router-dom";
 
 export default function Home() {
   const [name, setName] = useState("");
-  const [roomCode, setRoomCode] = useState("");
+  const [roomId, setRoomId] = useState("");
   const navigate = useNavigate();
 
   const handleCreateRoom = async () => {
+    if (!name) {
+      alert("Name is required");
+      return;
+    }
     try {
       const res = await fetch("http://localhost:3000/room", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ playerName: name }),
       });
 
       const data = await res.json();
@@ -23,12 +28,12 @@ export default function Home() {
   };
 
   const handleJoinRoom = async () => {
-    if (!name || !roomCode) {
+    if (!name || !roomId) {
       alert("Name and Room Code are required");
       return;
     }
     try {
-      const res = await fetch(`http://localhost:3000/room/${roomCode}/join`, {
+      const res = await fetch(`http://localhost:3000/room/${roomId}/join`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ playerName: name }),
@@ -41,7 +46,7 @@ export default function Home() {
       }
 
       const data = await res.json();
-      navigate(`/room/${roomCode}`, { state: { name } });
+      navigate(`/room/${roomId}`, { state: { name } });
     } catch (err) {
       alert("Failed to join room");
     }
@@ -61,8 +66,8 @@ export default function Home() {
         className="border p-2 rounded"
         type="text"
         placeholder="Room Code"
-        value={roomCode}
-        onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
+        value={roomId}
+        onChange={(e) => setRoomId(e.target.value.toUpperCase())}
       />
       <div className="space-x-2">
         <button
