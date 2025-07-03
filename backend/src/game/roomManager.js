@@ -5,7 +5,8 @@ class RoomManager {
         this.rooms = new Map();
     }
 
-    generateRoomId(length = 4){
+    generateRoomId(){
+        const length = 4;
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         let id;
         do {
