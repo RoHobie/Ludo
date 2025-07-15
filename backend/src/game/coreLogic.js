@@ -40,14 +40,15 @@ class LudoGame {
   }
 
   startGame() {
-    if (this.players.count < 2) {
+    if (this.players.length < 2) {
       throw new Error("Need at least 2 players to start the game");
     }
     this.started = true;
   }
 
   addPlayer(name) {
-    if (this.players.length >= 4) {  // Upto 4 players allowed
+    if (this.players.length >= 4) {
+      // Upto 4 players allowed
       throw new Error("Room full");
     }
 
@@ -83,6 +84,10 @@ class LudoGame {
     if (player.allPiecesHome()) {
       player.hasFinished = true;
     }
+  }
+
+  removePlayer(name) {
+    this.players = this.players.filter((p) => p.name !== name);
   }
 
   getState() {
