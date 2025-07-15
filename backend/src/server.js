@@ -29,11 +29,16 @@ app.post('/room/:roomId/join', (req, res) => {  //room joining endpoint
 
     if(!playerName) return res.status(400).json({error: 'Player name is required'});
     try{
+        const game = roomManager.getRoom(roomId);
+        if (!game) throw new Error("Room does not exist");
+        if (game.started) {
+            return res.status(400).json({error: 'Game already started'});
+        }
         const playerId = roomManager.joinRoom(roomId, playerName);
         res.json({playerId});
     } catch(err){
         console.error(err);
-        res.status(400).json({error: 'Failed to join room'});
+        res.status(400).json({error: err.message || 'Failed to join room'});
     }
 });
 
@@ -93,4 +98,16 @@ app.post('/room/:roomId/move', (req, res) => {
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
+});
+
+// Leave room endpoint
+app.post('/room/:roomId/leave', (req, res) => {
+    const { roomId } = req.params;
+    const { playerName } = req.body;
+    try {
+        roomManager.leaveRoom(roomId, playerName);
+        res.json({ success: true });
+    } catch (err) {
+        res.status(400).json({ error: err.message });
+    }
 });
