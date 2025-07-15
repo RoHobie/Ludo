@@ -1,10 +1,18 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function Home() {
   const [name, setName] = useState("");
   const [roomId, setRoomId] = useState("");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Prefill from localStorage
+    const savedName = localStorage.getItem("playerName");
+    const savedRoomId = localStorage.getItem("roomId");
+    if (savedName) setName(savedName);
+    if (savedRoomId) setRoomId(savedRoomId);
+  }, []);
 
   const handleCreateRoom = async () => {
     if (!name) {
@@ -20,6 +28,9 @@ export default function Home() {
 
       const data = await res.json();
       const roomId = data.roomId;
+
+      localStorage.setItem("playerName", name);
+      localStorage.setItem("roomId", roomId);
 
       navigate(`/room/${roomId}`, { state: { name } });
     } catch (err) {
@@ -39,13 +50,15 @@ export default function Home() {
         body: JSON.stringify({ playerName: name }),
       });
 
+      const data = await res.json();
       if (!res.ok) {
-        const { error } = await res.json();
-        alert(`Error: ${error}`);
+        alert(`Error: ${data.error}`);
         return;
       }
 
-      const data = await res.json();
+      localStorage.setItem("playerName", name);
+      localStorage.setItem("roomId", roomId);
+
       navigate(`/room/${roomId}`, { state: { name } });
     } catch (err) {
       alert("Failed to join room");
