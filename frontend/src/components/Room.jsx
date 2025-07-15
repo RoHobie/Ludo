@@ -5,7 +5,11 @@ export default function Room() {
   const { roomId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const playerName = location.state?.name || "Guest";
+  // Load from localStorage if not in location.state
+  const playerName =
+    location.state?.name ||
+    localStorage.getItem("playerName") ||
+    "Guest";
   const [roomState, setRoomState] = useState(null);
   const [error, setError] = useState("");
 
@@ -15,13 +19,17 @@ export default function Room() {
       navigate("/");
       return;
     }
+    localStorage.setItem("playerName", playerName);
+    localStorage.setItem("roomId", roomId);
     fetchRoomState();
   }, []);
 
   const fetchRoomState = async () => {
     try {
       // Fixed: Added /state to the endpoint
-      const res = await fetch(`http://localhost:3000/room/${roomId}/state`);
+      const res = await fetch(
+        `http://localhost:3000/room/${roomId}/state`
+      );
       if (!res.ok) throw new Error("Failed to fetch room info");
       const data = await res.json();
       setRoomState(data);
@@ -33,10 +41,13 @@ export default function Room() {
 
   const handleStartGame = async () => {
     try {
-      const res = await fetch(`http://localhost:3000/room/${roomId}/start`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      });
+      const res = await fetch(
+        `http://localhost:3000/room/${roomId}/start`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
       if (!res.ok) {
         const data = await res.json();
         alert(`Error: ${data.error}`);
@@ -47,6 +58,24 @@ export default function Room() {
       console.error(err);
       alert("Failed to start game");
     }
+  };
+
+  const handleQuitRoom = async () => {
+    try {
+      await fetch(
+        `http://localhost:3000/room/${roomId}/leave`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ playerName }),
+        }
+      );
+    } catch (err) {
+      // ignore error
+    }
+    localStorage.removeItem("playerName");
+    localStorage.removeItem("roomId");
+    navigate("/");
   };
 
   if (error) {
@@ -87,8 +116,17 @@ export default function Room() {
       )}
 
       {roomState.started && (
-        <div className="text-blue-600 font-semibold text-lg">Game Started!</div>
+        <div className="text-blue-600 font-semibold text-lg">
+          Game Started!
+        </div>
       )}
+
+      <button
+        onClick={handleQuitRoom}
+        className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+      >
+        Quit Room
+      </button>
     </div>
   );
 }
