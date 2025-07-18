@@ -5,22 +5,15 @@ export default function Room() {
   const { roomId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  // Load from localStorage if not in location.state
-  const playerName =
-    location.state?.name ||
-    localStorage.getItem("playerName") ||
-    "Guest";
+  const playerName = location.state?.name;
   const [roomState, setRoomState] = useState(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
     if (!playerName) {
-      alert("No name provided, redirecting...");
       navigate("/");
       return;
     }
-    localStorage.setItem("playerName", playerName);
-    localStorage.setItem("roomId", roomId);
     fetchRoomState();
   }, []);
 
@@ -73,8 +66,6 @@ export default function Room() {
     } catch (err) {
       // ignore error
     }
-    localStorage.removeItem("playerName");
-    localStorage.removeItem("roomId");
     navigate("/");
   };
 
