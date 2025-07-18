@@ -31,9 +31,6 @@ app.post('/room/:roomId/join', (req, res) => {  //room joining endpoint
     try{
         const game = roomManager.getRoom(roomId);
         if (!game) throw new Error("Room does not exist");
-        if (game.started) {
-            return res.status(400).json({error: 'Game already started'});
-        }
         const playerId = roomManager.joinRoom(roomId, playerName);
         res.json({playerId});
     } catch(err){
