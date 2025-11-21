@@ -1,123 +1,178 @@
-import { useEffect, useState } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
-
-export default function Room() {
-  const { roomId } = useParams();
-  const location = useLocation();
-  const navigate = useNavigate();
-  const playerName = location.state?.name;
-  const [roomState, setRoomState] = useState(null);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    if (!playerName) {
-      navigate("/");
-      return;
-    }
-    fetchRoomState();
-  }, []);
-
-  const fetchRoomState = async () => {
-    try {
-      // Fixed: Added /state to the endpoint
-      const res = await fetch(
-        `http://localhost:3000/room/${roomId}/state`
-      );
-      if (!res.ok) throw new Error("Failed to fetch room info");
-      const data = await res.json();
-      setRoomState(data);
-    } catch (err) {
-      console.error(err);
-      setError("Unable to load room");
-    }
-  };
-
-  const handleStartGame = async () => {
-    try {
-      const res = await fetch(
-        `http://localhost:3000/room/${roomId}/start`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-      if (!res.ok) {
-        const data = await res.json();
-        alert(`Error: ${data.error}`);
-        return;
+export default function LudoBoard() {
+  const renderCell = (row, col) => {
+    let className = 'border border-gray-300 box-border';
+    const tokens = [];
+    
+    // Red home area (top-left)
+    if (row < 6 && col < 6) {
+      className += ' bg-red-500';
+      // Add tokens
+      if ((row === 1 || row === 4) && (col === 1 || col === 4)) {
+        tokens.push(
+          <div
+            key="token"
+            className="w-3/5 h-3/5 rounded-full m-[20%] bg-red-500 border-2 border-gray-800"
+          />
+        );
       }
-      fetchRoomState(); // Refresh state after starting
-    } catch (err) {
-      console.error(err);
-      alert("Failed to start game");
     }
-  };
 
-  const handleQuitRoom = async () => {
-    try {
-      await fetch(
-        `http://localhost:3000/room/${roomId}/leave`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ playerName }),
-        }
-      );
-    } catch (err) {
-      // ignore error
+    //Red home path
+    if(row === 7 && col >= 1 && col <= 5){
+      className += ' bg-red-500';
     }
-    navigate("/");
-  };
+    
+    // Green home area (top-right)
+    if (row < 6 && col > 8) {
+      className += ' bg-green-500';
+      // Add tokens
+      if ((row === 1 || row === 4) && (col === 10 || col === 13)) {
+        tokens.push(
+          <div
+            key="token"
+            className="w-3/5 h-3/5 rounded-full m-[20%] bg-green-500 border-2 border-gray-800"
+          />
+        );
+      }
+    }
 
-  if (error) {
-    return (
-      <div className="text-center mt-10 text-red-500 text-xl">{error}</div>
-    );
-  }
+    // Green home path
+    if(col === 7 && row >= 1 && row <= 5){
+      className += ' bg-green-500';
+    }
+    
+    // Blue home area (bottom-left)
+    if (row > 8 && col < 6) {
+      className += ' bg-blue-500';
+      // Add tokens
+      if ((row === 10 || row === 13) && (col === 1 || col === 4)) {
+        tokens.push(
+          <div
+            key="token"
+            className="w-3/5 h-3/5 rounded-full m-[20%] bg-blue-500 border-2 border-gray-800"
+          />
+        );
+      }
+    }
 
-  if (!roomState) {
+    // Blue home path
+    if(col === 7 && row >= 9 && row <= 13){
+      className += ' bg-blue-500';
+    }
+    
+    // Yellow home area (bottom-right)
+    if (row > 8 && col > 8) {
+      className += ' bg-yellow-400';
+      // Add tokens
+      if ((row === 10 || row === 13) && (col === 10 || col === 13)) {
+        tokens.push(
+          <div
+            key="token"
+            className="w-3/5 h-3/5 rounded-full m-[20%] bg-yellow-400 border-2 border-gray-800"
+          />
+        );
+      }
+    }
+
+    // Yellow home path
+    if(row === 7 && col >= 9 && col <= 13){
+      className += ' bg-yellow-400';
+    }
+    
+    // Center area
+    if (row >= 6 && row <= 8 && col >= 6 && col <= 8) {
+      className += ' bg-gradient-to-br from-red-500 via-green-500 to-blue-500';
+    }
+    
+    // Red path
+    if (col === 6 && row >= 0 && row < 6) {
+      className += ' bg-white';
+      if (row === 1) {
+        tokens.push(
+          <div key="star" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-xl text-gray-800">
+            ★
+          </div>
+        );
+      }
+    }
+    if (row === 6 && col >= 6 && col <= 8) {
+      className += ' bg-red-500';
+    }
+    
+    // Green path
+    if (row === 6 && col > 8 && col <= 14) {
+      className += ' bg-white';
+      if (col === 13) {
+        tokens.push(
+          <div key="star" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-xl text-gray-800">
+            ★
+          </div>
+        );
+      }
+    }
+    if (col === 8 && row >= 6 && row <= 8) {
+      className += ' bg-green-500';
+    }
+    
+    // Blue path
+    if (col === 8 && row > 8 && row <= 14) {
+      className += ' bg-white';
+      if (row === 13) {
+        tokens.push(
+          <div key="star" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-xl text-gray-800">
+            ★
+          </div>
+        );
+      }
+    }
+    if (row === 8 && col >= 6 && col <= 8) {
+      className += ' bg-blue-500';
+    }
+    
+    // Yellow path
+    if (row === 8 && col >= 0 && col < 6) {
+      className += ' bg-white';
+      if (col === 1) {
+        tokens.push(
+          <div key="star" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-xl text-gray-800">
+            ★
+          </div>
+        );
+      }
+    }
+    if (col === 6 && row >= 6 && row <= 8) {
+      className += ' bg-yellow-400';
+    }
+    
+    // Outer paths
+    if (col === 1 && row >= 6 && row <= 8) className += ' bg-white';
+    if (col === 2 && row === 6) className += ' bg-white';
+    if (col === 13 && row >= 6 && row <= 8) className += ' bg-white';
+    if (col === 12 && row === 8) className += ' bg-white';
+    if (row === 1 && col >= 6 && col <= 8) className += ' bg-white';
+    if (row === 2 && col === 8) className += ' bg-white';
+    if (row === 13 && col >= 6 && col <= 8) className += ' bg-white';
+    if (row === 12 && col === 6) className += ' bg-white';
+    
     return (
-      <div className="text-center mt-10 text-gray-600 text-lg">
-        Loading room...
+      <div key={`${row}-${col}`} className={`${className} relative`}>
+        {tokens}
       </div>
     );
+  };
+
+  const cells = [];
+  for (let row = 0; row < 15; row++) {
+    for (let col = 0; col < 15; col++) {
+      cells.push(renderCell(row, col));
+    }
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4 space-y-6">
-      <h1 className="text-3xl font-bold">Room: {roomId}</h1>
-      <p className="text-lg text-gray-700">You are: {playerName}</p>
-
-      <div className="bg-white p-4 rounded shadow w-full max-w-md">
-        <h2 className="text-xl font-semibold mb-2">Players</h2>
-        <ul className="list-disc list-inside">
-          {roomState.players.map((p, i) => (
-            <li key={i}>{p.name}</li>
-          ))}
-        </ul>
+    <div className="m-0 p-5 flex justify-center items-center min-h-screen bg-gray-100">
+      <div className="w-[600px] h-[600px] grid grid-cols-[repeat(15,1fr)] grid-rows-[repeat(15,1fr)] bg-white border-4 border-gray-800">
+        {cells}
       </div>
-
-      {!roomState.started && roomState.players[0].name === playerName && (
-        <button
-          onClick={handleStartGame}
-          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-        >
-          Start Game
-        </button>
-      )}
-
-      {roomState.started && (
-        <div className="text-blue-600 font-semibold text-lg">
-          Game Started!
-        </div>
-      )}
-
-      <button
-        onClick={handleQuitRoom}
-        className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-      >
-        Quit Room
-      </button>
     </div>
   );
 }
