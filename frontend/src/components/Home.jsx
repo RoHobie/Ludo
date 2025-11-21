@@ -8,10 +8,6 @@ export default function Home() {
   const [roomIdInput, setRoomIdInput] = useState("");
   const navigate = useNavigate();
 
-  useEffect(() => {
-    // Removed localStorage check
-  }, []);
-
   const handleNameSubmit = (e) => {
     e.preventDefault();
     if (!name.trim()) {
