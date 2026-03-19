@@ -2,6 +2,11 @@ package engine
 
 func (g *Game) handleCapture(current *Player, moved *Token) {
 	index, ok := g.getBoardIndex(current, moved)
+
+	if moved.State == Done {
+		return
+	}
+
 	if !ok {
 		return
 	}
